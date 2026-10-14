@@ -57,10 +57,9 @@ workspace settings, and generate an API key.
 PROOPH_BOARD_API_KEY=your-api-key-here
 ```
 
-**4. Configure the spec-stream connection**
+**4. Configure hooks in spec-stream config (optional)**
 
-Edit `proophboard.spec-stream.json` to point at your workspace and board.
-You can also extend it to react to events received in real-time from prooph board —
+You can extend `proophboard.spec-stream.json` to react to events received in real-time from prooph board —
 see the [spec-stream documentation](https://github.com/proophboard/spec-stream)
 for details.
 
