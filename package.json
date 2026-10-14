@@ -1,0 +1,61 @@
+{
+  "name": "@proophboard/spec-modeling",
+  "version": "0.1.0",
+  "description": "Spec Modeling skeleton for AI agents.",
+  "keywords": [
+    "prooph-board",
+    "spec-modeling",
+    "cli",
+    "realtime",
+    "ai-agents",
+    "spec-driven-development"
+  ],
+  "homepage": "https://github.com/proophboard/spec-modeling#readme",
+  "bugs": {
+    "url": "https://github.com/proophboard/spec-modeling/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proophboard/spec-modeling.git"
+  },
+  "license": "MIT",
+  "author": "prooph software GmbH",
+  "type": "module",
+  "bin": {
+    "spec-modeling": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "model:sync": "npx @proophboard/spec-stream",
+    "model:sync-back": "npx @proophboard/spec-stream sync-back",
+    "model:validate": "npx @proophboard/spec-stream model validate",
+    "model:typecheck": "npx @proophboard/spec-stream scenario typecheck",
+    "model:scenario-test": "npx @proophboard/spec-stream scenario test",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0",
+    "vitest": "^3.2.7"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}

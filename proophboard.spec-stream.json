@@ -1,0 +1,15 @@
+{
+  "endpoint": "https://flow.prooph-board.com/api",
+  "logLevel": "info",
+  "localSync": {
+    "enabled": true,
+    "dir": "model"
+  },
+  "rules": [
+    {
+      "id": "example",
+      "on": "element-description-changed",
+      "run": "echo \"[$SPEC_STREAM_RULE_ID] $SPEC_STREAM_EVENT_TYPE on $SPEC_STREAM_ELEMENT_NAME ($SPEC_STREAM_ELEMENT_ID)\""
+    }
+  ]
+}
