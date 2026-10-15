@@ -8,14 +8,12 @@ name: html-wireframes
 # HTML Wireframes
 
 Create and maintain HTML wireframes that clarify a modeled user
-experience. A wireframe is a communication tool, not a mandatory
-artifact or a standalone application.
+experience. A wireframe is a communication tool.
 
 ## When to use a wireframe
 
 Create or update a wireframe when it meaningfully improves understanding
-of what a user sees, decides, or does during a process step. Do not add
-wireframes merely to decorate every UI-related element.
+of what a user sees, decides, or does during a process step.
 
 Keep each wireframe focused on the current process step. Show the
 information and actions relevant to that step rather than implementing a

@@ -247,6 +247,16 @@ Fields `clock`, `initialState`, `seededEvents`, `interactions`, `expectations` a
 }
 ```
 
+### HTML Snippet `[slug].json`
+```json
+{
+  "slug": "design-system",
+  "name": "Design System",
+  "createdAt": "2026-10-15T16:09:50.018661+00:00",
+  "updatedAt": "2026-10-15T16:09:50.018661+00:00"
+}
+```
+
 ---
 
 ## `uuid-index.json`
