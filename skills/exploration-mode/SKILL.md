@@ -71,7 +71,7 @@ Scenarios live under the chapter directory in the local model:
 - Add `apply` play functions on events to project their payloads into state — this is how downstream automations and commands receive the data they need.
 - Only reach for `initialState` or `seededEvents` when the prior flow genuinely comes from **outside this chapter**: a different chapter, a different bounded context, or an external system. Using them to skip slices that exist in the current chapter is a shortcut that undermines the value of the scenario.
 
-**Check for wireframes before writing interactions.** Before recording an interaction on a UI element, check whether its `description.md` contains an ` ```html ` code block. If no wireframe exists on any UI element in the chapter, ask the user whether to add one before proceeding — a scenario without a wireframe can test the data flow but cannot demonstrate the user journey interactively in Exploration Mode. See the `html-wireframe` skill for how to add one. Only skip this check if the user has already declined or explicitly said wireframes are out of scope for the current task.
+**Add wireframes before writing interactions.** Before recording an interaction on a UI element, add an HTML wireframe by including an ` ```html ` code block in its `description.md`. Wireframes are required — they help the user understand the scenario and the information flow covered by the model. See the `html-wireframe` skill for how to add one. Only skip this step if the UI element is read-only or not meant for user interaction.
 
 When a full-flow scenario is not yet feasible (missing wireframe, missing play functions in earlier slices), note it explicitly in the scenario name or a slice detail as a known gap rather than silently seeding past it.
 
@@ -1021,7 +1021,7 @@ Play functions and play types are written directly to their files on disk. `sync
 
 - [ ] Identify the chapter directory and the flow you want to run.
 - [ ] Trace the flow back to its origin in this chapter. Start from the first UI or Automation slice, not from the slice being tested. Only use `initialState` or `seededEvents` for data that genuinely originates outside this chapter.
-- [ ] **Check for wireframes:** for each UI element in scope, verify its `description.md` contains an ` ```html ` code block. If none do, ask the user whether to add wireframes before proceeding (see the `html-wireframe` skill). Only skip if the user has declined or said wireframes are out of scope.
+- [ ] **Add wireframes:** for each UI element in scope, add an HTML wireframe by including an ` ```html ` code block in its `description.md`. Wireframes are required — they help the user understand the scenario and the information flow covered by the model. See the `html-wireframe` skill for how to add one. Only skip this step if the UI element is read-only or not meant for user interaction.
 - [ ] Create the scenario directory under `scenarios/` and write `scenario.json` with a name and a fixed `clock`.
 - [ ] If the flow depends on prior state, populate `initialState` or `seededEvents`.
 - [ ] If UI screens need specific input, add entries to the `interactions` array.
