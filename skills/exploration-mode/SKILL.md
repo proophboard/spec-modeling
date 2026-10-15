@@ -392,6 +392,154 @@ The captured input for the list screen's UI element (the one that called `storag
 
 ---
 
+## How the runtime resolves play function types
+
+When you run `spec-stream scenario typecheck`, the typechecker compiles each `play-function.ts` against a set of generated type declarations derived from the **current chapter only**. Understanding how these types are built is essential for diagnosing typecheck errors — especially when a play function references names that exist in a different chapter.
+
+### Type resolution scope: current chapter only
+
+The runtime generates three name unions from the elements **drawn in the current chapter**:
+
+| Type | Built from | Example |
+|---|---|---|
+| `CommandName` | All command element names in this chapter | `"Add Todo" \| "Mark Todo As Done"` |
+| `EventName` | All event element names in this chapter | `"Todo Added" \| "Todo Marked As Done"` |
+| `ContextName` | All contexts used by any element in this chapter | `"TodoManagement"` |
+
+**The runtime does NOT look across chapters.** If chapter A has a command "Enrich Lead" and chapter B does not, a play function in chapter B that returns `{ name: "Enrich Lead" }` will fail typecheck because `CommandName` in chapter B does not include "Enrich Lead".
+
+### Discriminated unions and payload narrowing
+
+`RuntimeCommand`, `RuntimeEvent`, and `RuntimeEventInput` are **discriminated unions** over these name types. Selecting on `.name` narrows `.payload` to the declared `playType` for that element:
+
+```ts
+// RuntimeCommand is a union — one member per command name in the chapter:
+type RuntimeCommand = {
+  name: "Add Todo";
+  context: ContextName;
+  payload: { title: string; until?: string };      // from play-type.ts
+} | {
+  name: "Mark Todo As Done";
+  context: ContextName;
+  payload: { todoId: string };
+};
+```
+
+When you write `{ name: "Add Todo", payload: { ... } }` in a play function, TypeScript checks the payload against the `play-type.ts` declared for the "Add Todo" command element. If the element has no `play-type.ts`, the payload falls back to `Record<string, unknown>` (permissive — no field checking).
+
+### Per-element pinning (ThisCommand, ThisEvent, ThisUiStorage)
+
+The typechecker also generates per-element declarations that **pin** the handler parameter to the specific element being typechecked:
+
+- `interact(storage: ThisUiStorage, ...)` — `ThisUiStorage` is pinned to this UI element's `play-type.ts`
+- `decide(command: ThisCommand, ...)` — `ThisCommand` is pinned to this command element's name + payload
+- `apply(event: ThisEvent, ...)` — `ThisEvent` is pinned to this event element's name + payload
+
+This means `command.payload.leadId` works without a `.name` guard in a `decide` function — the parameter is already narrowed to the one element. But the **return type** (`RuntimeCommand[]`, `RuntimeEventInput[]`) is still the full chapter-level union, so any command/event name you return must exist as a drawn element in the current chapter.
+
+### Debugging typecheck errors: "Type X is not assignable to type Y"
+
+When `spec-stream scenario typecheck` reports errors like:
+
+```
+[play-function] 24:9 TS2322: Type '"Enrich Lead"' is not assignable to type '"Disqualify Lead"'.
+```
+
+This means the play function returns a command name (`"Enrich Lead"`) that is **not in the current chapter's `CommandName` union**. The union only contains `"Disqualify Lead"` because that is the only command element drawn in this chapter.
+
+**Common cause: play function copied from another chapter.** The same UI element (e.g. "Lead Detail") may appear in multiple chapters with different available commands. If you copy an `interact` function from chapter A (which has "Enrich Lead" and "Qualify Lead" commands) into chapter B (which only has "Disqualify Lead"), the typecheck will flag every command name that doesn't exist in chapter B.
+
+**How to diagnose:**
+
+1. Run `spec-stream scenario typecheck` and note which element has the error and which names are flagged.
+2. List the command elements in the current chapter:
+   ```sh
+   ls model/chapters/<chapter-uuid>/elements/*/element.json | \
+     xargs grep -l '"command"' | \
+     xargs -I{} python3 -c "import json; d=json.load(open('{}')); print(d['name'])"
+   ```
+3. Compare the names returned by the play function against the command elements that actually exist. Any name not in the chapter is either:
+   - A command element that needs to be **drawn in this chapter** (add it to the board), or
+   - A leftover from a **wrong copy** — the play function belongs to a different chapter and should be rewritten for this chapter's available commands.
+
+**The same applies to `EventName` in `decide`/`react` return values and `RuntimeEventInput`.** If a `decide` function returns `{ name: "Lead Enriched" }` but no event element named "Lead Enriched" exists in the current chapter, the typecheck will flag it.
+
+### Summary: the typecheck contract
+
+| What you write | What the typechecker checks against |
+|---|---|
+| `return [{ name: "X", ... }]` in `interact` | "X" must be a command element in this chapter |
+| `return [{ name: "Y", ... }]` in `decide`/`react` | "Y" must be an event element in this chapter |
+| `command.payload.field` in `decide` | `field` must match the `play-type.ts` of this command element |
+| `event.payload.field` in `apply` | `field` must match the `play-type.ts` of this event element |
+| `storage.field` in `interact` | `field` must match the `play-type.ts` of this UI element |
+| Return of `apply` (ProjectionPatch) | Context and element keys must match Information elements in this chapter |
+
+If a name is not in the chapter, the type is not in the union, and the typecheck catches it. This is intentional — it prevents typos and catches mismatched play functions early. When you see this error, check whether the play function was written for the correct chapter.
+
+### Play-type sharing across chapters: use a superset
+
+Play types are shared across all placements with the same name, type, and context — **even across different chapters**. When the same UI element (e.g. "Lead Detail") appears in multiple chapters with different available commands, each chapter's `interact` function may use different input fields, but they all share one `play-type.ts`.
+
+**Rule: the shared play-type must be a superset that covers every chapter's input fields.** Do not narrow the play-type to only one chapter's fields — the other chapters' interact functions will then fail typecheck when they access fields not in the type.
+
+For example, a "Lead Detail" UI that appears in four chapters:
+
+```ts
+// Shared play-type for ALL "Lead Detail" placements across chapters:
+type Payload = {
+  leadId?: string;
+  // Disqualify Lead (Lead Disqualification chapter)
+  disqualify?: boolean;
+  reason?: string;
+  // Enrich Lead (Lead Qualification chapter)
+  linkedInProfile?: string;
+  company?: string;
+  jobTitle?: string;
+  // Qualify Lead (Lead Qualification chapter)
+  qualify?: boolean;
+  // Register Lead (Lead Funnel chapter)
+  register?: boolean;
+  // Add Note (Lead Notes chapter)
+  text?: string;
+  authorId?: string;
+};
+```
+
+Each chapter's `interact` function only returns the commands available in that chapter, but `storage` can carry any of these fields. The superset type keeps all chapters type-correct.
+
+### Debugging typecheck errors: TS2352 "Conversion of type '{...}' to type 'any[]'"
+
+When `spec-stream scenario typecheck` reports:
+
+```
+[play-function] 2:20 TS2352: Conversion of type '{ leadId: string; name: string; ... }' to type 'any[]' may be a mistake
+```
+
+This means the `play-type.ts` for an Information element declares a **single object** shape, but the play function treats the projection as a **list** (using `.map()`, `.find()`, `.filter()`, spread `[...current, ...]`).
+
+**The fix is to verify if the Information element is supposed to be a list and if yes -> change the play-type to an array.** 
+
+```ts
+// Wrong — single object, but the apply function does current.map(...):
+type Payload = {
+  leadId: string;
+  name: string;
+  status: string;
+};
+
+// Correct — array of objects, matching the list-based projection:
+type Payload = {
+  leadId: string;
+  name: string;
+  status: string;
+}[];
+```
+
+This also fixes the follow-on TS2559 error ("Type 'any[]' has no properties in common with type 'Partial<{...}>>'") on the `ProjectionPatch` return — the patch value now matches the declared array type.
+
+---
+
 ## Play Function Reference — all six handlers
 
 ### `interact` — UI screen
