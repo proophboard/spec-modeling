@@ -1,0 +1,34 @@
+# Source files (only needed for building the CLI)
+src/
+*.ts
+tsconfig.json
+
+# Dev dependencies and testing
+node_modules/
+vitest.config.*
+*.test.ts
+*.spec.ts
+
+# Build artifacts (will be regenerated)
+dist/
+
+# Development config
+.npm
+.npmrc
+.eslint*
+.prettier*
+.stylelint*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# GitHub
+.github/
+pull_request_template.md
+CONTRIBUTING.md
+
+# spec-stream runtime state
+.spec-stream/

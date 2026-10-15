@@ -3,6 +3,7 @@
 import degit from 'degit';
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
 
 const REPO = 'proophboard/spec-modeling';
 
@@ -40,10 +41,26 @@ async function init(targetDir: string) {
   try {
     await emitter.clone(absTarget);
     console.log('✓ Files copied from GitHub (no git history)\n');
+
+    // Remove src folder as it's only needed for building the CLI
+    const srcPath = path.join(absTarget, 'src');
+    if (fs.existsSync(srcPath)) {
+      fs.rmSync(srcPath, { recursive: true, force: true });
+    }
+
+    // Run npm install to install dependencies
+    console.log('Installing dependencies...');
+    try {
+      execSync('npm install', { cwd: absTarget, stdio: 'inherit' });
+    } catch (installErr: unknown) {
+      console.warn('Warning: npm install failed. Please run `npm install` manually.');
+    }
+
     console.log('Next steps:');
     console.log(`  cd ${path.relative(process.cwd(), absTarget) || '.'}`);
-    console.log('  npm install');
-    console.log('  # Configure .env (see .env.example)');
+    console.log('  cp .env.example .env');
+    console.log('  # Add your prooph board API key to .env (get it from https://flow.prooph-board.com)');
+    console.log('  npm run model:sync   # Start in background for real-time sync');
     console.log('  # Start editing skills/ and model/ as needed\n');
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);

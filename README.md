@@ -38,8 +38,6 @@ npx @proophboard/spec-modeling init [target-directory]
 
 If no directory is given the files are placed in the current directory.
 
-## Setup
-
 **1. Copy the example environment file**
 
 ```bash

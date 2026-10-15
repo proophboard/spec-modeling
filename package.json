@@ -1,6 +1,6 @@
 {
   "name": "@proophboard/spec-modeling",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Spec Modeling skeleton for AI agents.",
   "keywords": [
     "prooph-board",
@@ -26,8 +26,13 @@
   },
   "files": [
     "dist",
+    "skills",
+    "model",
+    "AGENTS.md",
+    "proophboard.spec-stream.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    ".env.example"
   ],
   "dependencies": {
     "degit": "^2.8.4"
@@ -40,26 +45,14 @@
     "model:sync-back": "npx @proophboard/spec-stream sync-back",
     "model:validate": "npx @proophboard/spec-stream model validate",
     "model:typecheck": "npx @proophboard/spec-stream scenario typecheck",
-    "model:scenario-test": "npx @proophboard/spec-stream scenario test",
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@types/degit": "^2.8.6",
     "@types/node": "^20.14.0",
-    "typescript": "^5.5.0",
-    "vitest": "^3.2.7"
-  },
-  "peerDependencies": {
-    "typescript": ">=5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
+    "typescript": "^5.5.0"
   }
 }
