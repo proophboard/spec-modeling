@@ -22,10 +22,10 @@ For the complete file tree layout, every JSON schema, field types and allowed va
 
 ## 1. Locate the model
 
-By default, `spec-stream run` writes the local model to:
+By default, the local model is written to:
 
 ```text
-.spec-stream/model/
+model/
 ```
 
 The directory can be changed through the `localSync.dir` configuration. Check the project configuration and existing files rather than assuming the default path.
@@ -52,20 +52,20 @@ Do not try to make a change persist by editing a generated file. Change the appr
 
 ### Editable files
 
-| File | Represents |
-|---|---|
-| `chapter.json` | Chapter name and context |
-| `slice.json` | Slice label and status |
-| Slice `details.md` | Slice details |
-| `lane.json` | Lane label, index, and height |
-| `element.json` | Element name, type, and placement properties such as `laneId`, `sliceId`, and index |
-| Element `description.md` | Short, placement-specific sticky-note description |
+| File | Represents                                                                                                               |
+|---|--------------------------------------------------------------------------------------------------------------------------|
+| `chapter.json` | Chapter name and context                                                                                                 |
+| `slice.json` | Slice label and status                                                                                                   |
+| Slice `details.md` | Slice details                                                                                                            |
+| `lane.json` | Lane label, index, and height                                                                                            |
+| `element.json` | Element name, type, and placement properties such as `laneId`, `sliceId`, and index                                      |
+| Element `description.md` | Short, placement-specific sticky-note description                                                                        |
 | Element `details.md` | Rich details for the element. Syncing back propagates the change to all same-name/type/context elements on prooph board. |
-| `play-function.ts` | Exploration Mode handler — see `exploration-mode` skill |
-| `play-type.ts` | Payload type for Exploration Mode — see `exploration-mode` skill |
-| `scenario.json` | Scenario definition — see `exploration-mode` skill |
-| `milestone.json` / `description.md` | Milestone properties and description |
-| HTML snippet files | HTML snippet content and associated metadata |
+| `play-function.ts` | Exploration Mode handler — see `exploration-mode` skill                                                                  |
+| `play-type.ts` | Payload type for the Element — see `event-modeling` skill and `exploration-mode` skill                                   |
+| `scenario.json` | Scenario definition — see `exploration-mode` skill                                                                       |
+| `milestone.json` / `description.md` | Milestone properties and description                                                                                     |
+| HTML snippet files | HTML snippet content and associated metadata                                                                             |
 
 Use the existing file format and nearby examples. Do not invent fields or reshape JSON without checking the project's existing model files and schema/reference documentation.
 

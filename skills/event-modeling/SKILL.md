@@ -187,6 +187,115 @@ ownership of specification content. Do not move runtime implementation
 details into element descriptions or treat a working prototype as a
 substitute for a clear business specification.
 
+## Element types: the single source of truth for data structures
+
+Every element can have a TypeScript type definition describing the payload associated with it. In the prooph board UI, this is edited in the element's **Type** tab. In the local model, the definition is represented by `play-type.ts`.
+
+Element types serve two purposes:
+
+- **Data contract:** Define the payload shape, including field names, value types, optional properties, literal unions, and nested structures.
+- **Implementation blueprint:** Give developers and AI coding agents an explicit contract to implement against.
+
+The type is the authoritative definition of the data structure. Do not maintain a second structural definition in Markdown.
+
+### Do not duplicate structures in `details.md`
+
+When an element has a type definition, do not reproduce its fields in a Markdown table, interface declaration, or similar “Structure” section in `details.md`. Duplicating the contract creates competing definitions that can drift apart.
+
+Avoid documenting an Information element like this:
+
+```markdown
+## Structure
+
+| Field | Type | Description |
+|---|---|---|
+| leadId | string | Unique lead identifier |
+| name | string | Lead's name |
+| email | string | Lead's email address |
+| status | string | Current status |
+```
+
+Instead, use Markdown to explain what the information means and how it is used:
+
+```markdown
+## Purpose
+
+Represents a lead that can be qualified by the sales team.
+
+## Query
+
+Returns leads visible to the current sales user. Newly registered leads start
+with the `new` status. Qualification decisions are described in the relevant
+process slices.
+```
+
+Define the actual data contract in `play-type.ts`:
+
+```typescript
+type Payload = {
+  leadId: string;
+  name: string;
+  email: string;
+  status: 'new' | 'qualified' | 'disqualified';
+};
+```
+
+Markdown may explain the business meaning of an individual field when that explanation adds useful context. It must not become a second definition of the field list or field types. If the structure is important and no type exists, define the type rather than documenting a substitute structure in prose or a table.
+
+### Editing element types
+
+When creating or changing an element's payload:
+
+1. Read the existing `play-type.ts`, if present, before editing.
+2. Define the payload in `play-type.ts` using the complete `type Payload = ...` alias.
+3. Use precise TypeScript types. Prefer literal unions for fixed values and optional properties where appropriate. Avoid `any` and unnecessarily broad types.
+4. Reuse existing Information types when one payload is based on another structure. Do not copy field definitions when a TypeScript type reference can express the relationship.
+5. Keep `details.md` focused on purpose, business meaning, rules, queries, and other explanatory information.
+6. Check whether a payload change affects play functions, scenarios, or other type references.
+7. Do not change unrelated types merely to make the model look uniform.
+
+### Referencing Information types
+
+Information element types are aggregated into `RuntimeState`. Use TypeScript indexed access types to reference an Information element's payload.
+
+Use this form:
+
+```typescript
+type Payload = RuntimeState['Context']['ElementName'];
+```
+
+Do not use namespace-style property access such as:
+
+```typescript
+// Incorrect: RuntimeState is a type, not a namespace.
+type Payload = RuntimeState.Context.ElementName;
+```
+
+**Important: context name and element name are converted into ClassName style (PascalCase) within RuntimeState to avoid TypeScript naming issues.**
+
+TypeScript utility types can derive a related shape without duplicating fields:
+
+```typescript
+type Payload = Omit<
+  RuntimeState['Leads']['Lead'],
+  'leadId' | 'createdAt' | 'updatedAt'
+>;
+```
+
+Other standard utility types such as `Pick`, `Partial`, and `Required` can be useful when they express the intended contract clearly. Prefer a reference or derived type over manually repeating the same fields.
+
+Use the exact context and Information element names represented in the model. Do not assume a type reference resolves in every chapter: Exploration Mode has chapter-level type-resolution constraints. If the type is used by an Exploration Mode play function, consult the `exploration-mode` skill and verify the constraints there.
+
+### Keep responsibilities separate
+
+- `play-type.ts`: What data does this element carry?
+- `play-function.ts`: How does this element behave in Exploration Mode?
+- `description.md`: What does this particular placement represent?
+- Element `details.md`: What does the element mean, and what additional business or technical information helps explain it?
+- Slice `details.md`: What happens in this particular slice, including scenario-specific behavior and Given/When/Then material?
+
+Do not treat a Markdown structure table as a substitute for a missing type. Do not use the element type as a substitute for business explanation.
+
 ## Chapters and paths
 
 A chapter represents one user journey or business-process path.
