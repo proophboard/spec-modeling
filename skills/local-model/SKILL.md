@@ -155,6 +155,32 @@ After a successful sync-back, check the command result.
 - **Treating local validation as a board sync:** Validation checks the local model; sync-back is a separate operation.
 - **Changing methodology in this skill:** Use the relevant modeling skill for business and modeling rules.
 
+## 8. Chapters are self-contained
+
+**Each chapter is independent and must contain all its own entities.** When creating a new chapter:
+
+- **Generate fresh UUIDs for every entity** (chapter, lanes, slices, elements, scenarios).
+- **Never reuse UUIDs from other chapters** - each UUID must be unique across the entire model.
+- **Every lane, slice, and element must be created within the chapter's own directories** - they cannot be copied or referenced from other chapters.
+- **Elements reference their lane and slice via `laneId` and `sliceId` using UUIDs from the same chapter** - these UUIDs must exist in `uuid-index.json` or be locally-assigned UUIDs not yet synced.
+
+**Example structure for a new chapter:**
+```
+chapters/[new-chapter-uuid]/
+  chapter.json          # id: [new-chapter-uuid]
+  slices/
+    [new-slice-uuid]/
+      slice.json        # id: [new-slice-uuid]
+  lanes/
+    [new-lane-uuid]/
+      lane.json         # id: [new-lane-uuid]
+  elements/
+    [new-element-uuid]/
+      element.json      # id: [new-element-uuid],
+                        # laneId: [new-lane-uuid],
+                        # sliceId: [new-slice-uuid]
+```
+
 ## Completion checklist
 
 Before declaring a model change complete:
