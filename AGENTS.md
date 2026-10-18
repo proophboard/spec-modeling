@@ -23,13 +23,12 @@ mechanism.
 
 ### After Every Model Change
 
-After modifying any file under `./model/`, always run these two steps — do not
-ask the user to run them, they are your responsibility:
+After modifying any file under `./model/`, always run this command — do not
+ask the user to run it, it is your responsibility:
 
-1. `npx @proophboard/spec-stream model validate` — validates the local model
-2. `npx @proophboard/spec-stream sync-back` — synchronizes changes back to prooph board
+`npx @proophboard/spec-stream sync-back` — synchronizes changes back to prooph board
 
-Never declare a model change complete without both steps passing successfully.
+Never declare a model change complete without this step passing successfully.
 
 ## Skills
 
@@ -52,6 +51,8 @@ by reading its `SKILL.md` file before starting a task.
 - Treat the specification as the reference for implementation.
 - Use the native capabilities of the current coding agent.
 
-This package provides reusable skills and instructions, not a separate
-agent runtime. Its methodology must remain independent of any specific
-AI provider or coding agent.
+## Rules
+
+- Never edit generated files like `uuid-index.json`. spec-stream sync is running in the background. After `sync-back` uuid-index.json will get updated automatically. Don't touch it yourself!
+- Never run `npx @proophboard/spec-stream run` yourself. It's a long-running process started by the user. Never use it, to try to repair something as this can cause local data loss!
+

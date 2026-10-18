@@ -80,6 +80,7 @@ npm run model:sync-back     # Push local model changes back to prooph board
 npm run model:validate      # Validate the local model
 npm run model:typecheck     # Type-check scenario play functions
 npm run model:scenario-test # Run scenario tests
+npm run model:rebuild       # Rebuild the local model from REST API
 ```
 
 ## Project structure

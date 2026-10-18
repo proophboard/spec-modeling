@@ -41,10 +41,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "model:sync": "npx @proophboard/spec-stream",
+    "model:sync": "npx @proophboard/spec-stream --verbose",
     "model:sync-back": "npx @proophboard/spec-stream sync-back",
     "model:validate": "npx @proophboard/spec-stream model validate",
     "model:typecheck": "npx @proophboard/spec-stream scenario typecheck",
+    "model:rebuild": "npx @proophboard/spec-stream --rebuild --verbose",
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
