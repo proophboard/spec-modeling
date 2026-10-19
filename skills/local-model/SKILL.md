@@ -32,9 +32,9 @@ The directory can be changed through the `localSync.dir` configuration. Check th
 
 ### Navigating the tree
 
-- Names in directory paths are sanitized slugs. The raw names are stored in the corresponding JSON files.
-- Slice and element directories have zero-padded numeric prefixes that reflect their board order.
-- Lane directories are not numerically prefixed; use `lane.json`'s `index` to determine lane order.
+- Each chapter is a directory with a `chapter.json` file and all lanes, slices, elements, and scenarios organized in sub directories.
+- Directory paths only include the components UUIDs. The raw names are stored in the corresponding JSON files.
+- Use `chapter.json` `sliceOrder` and `laneOrder` to determine slice and lane order.
 - `uuid-index.json` maps UUIDs to relative paths. Use it to find an entity from an ID returned by another tool or present in a reference.
 - Read the relevant entity JSON before changing its name, type, placement, status, or other structured properties. Do not infer those values from the directory name alone.
 
@@ -54,7 +54,7 @@ Do not try to make a change persist by editing a generated file. Change the appr
 
 | File | Represents                                                                                                               |
 |---|--------------------------------------------------------------------------------------------------------------------------|
-| `chapter.json` | Chapter name and context                                                                                                 |
+| `chapter.json` | Chapter name, context, and slice + lane order                                                                            |
 | `slice.json` | Slice label and status                                                                                                   |
 | Slice `details.md` | Slice details                                                                                                            |
 | `lane.json` | Lane label, index, and height                                                                                            |
@@ -95,8 +95,8 @@ When creating or modifying more than one logical unit — for example, multiple 
 
 **Natural checkpoint boundaries:**
 
-- One complete chapter (all its slices, lanes, and elements)
-- One scenario
+- One slice with its elements placed in the correct lanes and descriptions and details written
+- One scenario with initial setup, recorded interactions and pinned expectations
 - One cohesive set of changes to a shared element used across chapters
 
 **Why this matters:**
@@ -127,7 +127,7 @@ The validator checks, among other things:
 - Element `laneId` and `sliceId` references resolve through `uuid-index.json`.
 - Scenario expectation references resolve to known slice and element IDs.
 - UUIDs are not duplicated across different directories.
-- Directory slugs match the sanitized names in the corresponding JSON.
+- Slices, Lanes, and Elements are not referenced across chapters.
 
 Resolve validation errors rather than bypassing them. If a validation result appears inconsistent with the files, inspect the relevant paths and references before continuing.
 
@@ -147,10 +147,9 @@ After a successful sync-back, check the command result.
 
 ## 7. Avoid common mistakes
 
-- **Renaming by moving directories:** To rename an entity, change only the `name`/`label` field in the JSON — never rename the directory yourself. Renaming the directory makes sync-back see a delete + create, which duplicates the entity on the board. The directory is updated automatically by `spec-stream run` after the board confirms the rename.
 - **Editing generated output:** Change source files, not `index.md`, indexes, or workspace metadata.
-- **Editing by slug alone:** Slugs are for paths; use JSON for the actual name and properties.
 - **Ignoring shared details:** Element details may be shared across placements and chapters.
+- **Ignoring shared play types:** Element play types may be shared across placements and chapters.
 - **Deleting files casually:** A deleted primary JSON file may delete the corresponding board entity.
 - **Treating local validation as a board sync:** Validation checks the local model; sync-back is a separate operation.
 - **Changing methodology in this skill:** Use the relevant modeling skill for business and modeling rules.
