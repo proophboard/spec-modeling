@@ -374,6 +374,7 @@ Typical structure: `UI (optional) → Command → Event(s)`.
 -   One or more Events in the relevant System Context lane(s).
 -   Information and Automation are not allowed.
 -   Favor UI/Automation in read/automation slice followed by command + event in next write slice.
+-   A UI inside a write slice is justified only when it is a distinct screen — for example a dialog or form opened for that action — not the same display already shown in the preceding read slice; that screen already connects to the command.
 
 A Write slice represents a business action that changes system state.
 
