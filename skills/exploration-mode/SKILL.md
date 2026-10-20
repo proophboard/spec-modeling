@@ -877,12 +877,12 @@ This example walks through a complete **Add Todo → Mark Todo As Done** flow, c
 
 ### Event model structure (TodoManagement context)
 
+Causal chain — each `information → ui` pair forms a Read slice, each `command → event` pair a Write slice. The UI in a Read slice is the action provider for the next Write slice's command, and recorded interactions target that UI placement; Write slices themselves carry no UI:
+
 ```
-Slice 1 (Read):    Todo List UI   ←  TodoList (information)
-Slice 2 (Write):   Todo List UI  →  Add Todo (command)  →  Todo Added (event)
-Slice 3 (Read):    Todo List UI   ←  TodoList (updated)
-Slice 4 (Write):   Todo UI       →  Mark Todo As Done (command)  →  Todo Marked As Done (event)
-Slice 5 (Read):    Todo UI        ←  TodoList (updated, only open)
+TodoList (information) → Todo List (ui) → Add Todo (command) → Todo Added (event)
+  → TodoList (information) → Todo List (ui) → Mark Todo As Done (command) → Todo Marked As Done (event)
+  → TodoList (information) → Todo List (ui)
 ```
 
 ### Play type — `Add Todo` command (`play-type.ts`)
