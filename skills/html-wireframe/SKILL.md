@@ -93,6 +93,16 @@ The runtime performs textual substitution of each
 `{{ state.Context.Element }}` expression with the current JSON value. If
 an expression cannot be resolved, it is replaced with an empty string.
 
+`{{ }}` expressions are substituted only in the UI element's own HTML
+(the ` ```html ` block in its description), not inside imported HTML
+snippets. To feed runtime data into a shared snippet, carry the value on
+the element HTML — for example
+`<body data-tasks='{{ state.Context.Element }}'>` — and read the
+attribute from the snippet script. Treat any successfully parsed JSON
+value as live data: unseen Information projections start as `{}`, so
+coerce non-array values to your expected shape instead of falling back
+to static content.
+
 **Never assume the runtime is present.** HTML wireframes can also be
 rendered in Presentation Mode and normal HTML Preview, and Exploration
 Mode may run before data has been seeded. Always provide useful static
