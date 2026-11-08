@@ -1,6 +1,6 @@
 {
   "name": "@proophboard/spec-modeling",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Spec Modeling skeleton for AI agents.",
   "keywords": [
     "prooph-board",
